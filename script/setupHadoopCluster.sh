@@ -11,4 +11,5 @@ echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> ~/.profile
 
 . ~/.profile
 
+sudo sed -i 's/JAVA_HOME=${JAVA_HOME}/JAVA_HOME=\/usr/' $HADOOP_HOME/etc/hadoop/hadoop-env.sh 
 
