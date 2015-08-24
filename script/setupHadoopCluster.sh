@@ -1,3 +1,10 @@
+#!/bin/sh
+
+NamenodeDSN=ec2-52-27-133-5.us-west-2.compute.amazonaws.com
+Datanode1DSN=ec2-52-27-94-183.us-west-2.compute.amazonaws.com
+Datanode2DSN=ec2-52-26-177-207.us-west-2.compute.amazonaws.com
+Datanode3DSN=ec2-52-27-74-145.us-west-2.compute.amazonaws.com
+
 sudo apt-get update
 sudo apt-get install openjdk-7-jdk
 wget http://mirror.symnds.com/software/Apache/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz -P ~/Downloads
@@ -11,5 +18,12 @@ echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> ~/.profile
 
 . ~/.profile
 
-sudo sed -i 's/JAVA_HOME=${JAVA_HOME}/JAVA_HOME=\/usr/' $HADOOP_HOME/etc/hadoop/hadoop-env.sh 
+sudo sed -i 's/JAVA_HOME=${JAVA_HOME}/JAVA_HOME=\/usr/' $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
+sudo sed -i.bak 's|<configuration>|&<property><name>fs.defaultFS</name><value>hdfs://'"$NamenodeDSN"':9000</value></property>|' $HADOOP_HOME/etc/hadoop/core-site.xml
+
+sudo sed -i.bak 's|<configuration>|&<property> <name>yarn.nodemanager.aux-services</name> <value>mapreduce_shuffle</value> </property> <property> <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name> <value>org.apache.hadoop.mapred.ShuffleHandler</value> </property> <property> <name>yarn.resourcemanager.resource-tracker.address</name> <value>'"$NamenodeDSN"':8025</value> </property> <property> <name>yarn.resourcemanager.scheduler.address</name> <value>'"$NamenodeDSN"':8030</value> </property> <property> <name>yarn.resourcemanager.address</name> <value>'"$NamenodeDSN"':8050</value> </property> |' $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+sudo cp $HADOOP_HOME/etc/hadoop/mapred-site.xml.template $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+sudo sed -i.bak 's|<configuration>|&<property> <name>mapreduce.jobtracker.address</name> <value>'"$NamenodeDSN"':54311</value> </property> <property> <name>mapreduce.framework.name</name> <value>yarn</value> </property> |' $HADOOP_HOME/etc/hadoop/mapred-site.xml
